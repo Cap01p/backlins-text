@@ -1,0 +1,49 @@
+<div class="bg-white p-6 rounded-lg shadow-md">
+  <h3 class="text-2xl font-semibold mb-4">Backlinks Calculator</h3>
+  <p class="mb-4">Analyze the number of backlinks pointing to your domain and get a report of the linking domains.</p>
+  <form id="backlinks-form" class="mb-4">
+    <input type="url" placeholder="Enter your domain" class="w-full p-2 border rounded mb-2" required>
+    <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">Calculate Backlinks</button>
+  </form>
+  <div id="backlinks-result" class="hidden">
+    <h4 class="font-semibold mb-2">Results:</h4>
+    <p>Total Backlinks: <span id="total-backlinks"></span></p>
+    <p>Referring Domains: <span id="referring-domains"></span></p>
+    <h5 class="font-semibold mt-2">Top Linking Domains:</h5>
+    <ul id="top-domains" class="list-disc pl-5"></ul>
+  </div>
+</div>
+
+<script>
+  const backlinksForm = document.getElementById('backlinks-form');
+  const backlinksResult = document.getElementById('backlinks-result');
+  const totalBacklinks = document.getElementById('total-backlinks');
+  const referringDomains = document.getElementById('referring-domains');
+  const topDomains = document.getElementById('top-domains');
+
+  backlinksForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const domain = new FormData(e.target).get('url');
+    
+    try {
+      const response = await fetch(`https://ahrefs1.p.rapidapi.com/v1/backlink-checker?url=${domain}&mode=subdomains`, {
+        headers: {
+          'x-rapidapi-key': '4dd7a616abmshe432066db06c437p1cea1fjsnb7af23cf2dcf',
+          'x-rapidapi-host': 'ahrefs1.p.rapidapi.com'
+        }
+      });
+      
+      const data = await response.json();
+      
+      totalBacklinks.textContent = data.total_backlinks;
+      referringDomains.textContent = data.referring_domains;
+      
+      topDomains.innerHTML = data.top_referring_domains.slice(0, 5).map(domain => `<li>${domain}</li>`).join('');
+      
+      backlinksResult.classList.remove('hidden');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while fetching backlink data.');
+    }
+  });
+</script>
